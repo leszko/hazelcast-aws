@@ -50,4 +50,22 @@ public class AwsDiscoveryStrategyFactory
         }
         return definitions;
     }
+
+    @Override
+    public boolean isApplicableToCurrentEnvironment() {
+        String metadataUrl = "http://169.254.169.254/latest/meta-data/";
+        int timeoutInSeconds = 2;
+        try {
+            RestClient.create(metadataUrl)
+                    .withConnectTimeoutSeconds(timeoutInSeconds)
+                    .withReadTimeoutSeconds(timeoutInSeconds)
+                    .withRetries(0)
+                    .get();
+        } catch (Exception e) {
+            // any exception means that we're not running at AWS
+            return false;
+        }
+        // no exception means we're running at AWS
+        return true;
+    }
 }
